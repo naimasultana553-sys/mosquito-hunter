@@ -6,7 +6,7 @@ The game is designed to be **easy to understand, quick to play, and addictive**.
 
 The first version focuses on keeping the gameplay simple while making the experience feel polished through **cute 2D visuals, smooth mosquito movement, soft animations, satisfying interactions, and a cozy aesthetic bedroom environment**.
 
-> **Play it live:** [Mosquito Hunter](https://mosquito-hunter.vercel.app)
+> **Play it live:** [Mosquito Hunter](https://mosquito-hunter-sigma.vercel.app)
 
 ## 🎮 Gameplay
 
