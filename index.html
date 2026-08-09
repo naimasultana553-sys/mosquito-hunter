@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Mosquito Hunter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100vh;
+    overflow: hidden;
+    font-family: "Nunito", "Trebuchet MS", "Segoe UI", sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none;
+  }
+  @supports (height: 100dvh) {
+    html, body { height: 100dvh; }
+  }
+  body { background: #3a4466; }
+
+  #scene { position: relative; width: 100%; height: 100%; overflow: hidden; background: linear-gradient(#5a6794 0%, #44517c 38%, #44517c 62%, #dcc49a 62%, #cfb389 100%); }
+
+  .wall-deco { position: absolute; pointer-events: none; }
+
+  .moonlight { position: absolute; left: -4%; top: 0; width: 50%; height: 100%; pointer-events: none; z-index: 2; background: linear-gradient(115deg, rgba(208,222,255,.20) 0%, rgba(208,222,255,.06) 46%, rgba(208,222,255,0) 68%); }
+
+  .window { left: 6%; top: 6%; width: min(170px, 30vw); height: min(135px, 23.8vw); border: clamp(5px, 1.6vw, 9px) solid #c9b08a; border-radius: 6px; background: linear-gradient(#111b3a, #2c3557); box-shadow: inset 0 0 20px rgba(140,160,220,.25), 0 3px 8px rgba(0,0,0,.3); }
+  .window::before, .window::after { content: ""; position: absolute; background: #c9b08a; }
+  .window::before { left: 50%; top: 0; width: 6px; height: 100%; transform: translateX(-50%); }
+  .window::after { top: 50%; left: 0; height: 6px; width: 100%; transform: translateY(-50%); }
+  .moon { position: absolute; top: 14px; right: 16px; width: 30px; height: 30px; border-radius: 50%; background: #fff3cc; box-shadow: 0 0 14px #fff3b0, 0 0 28px rgba(255,243,176,.6); }
+  .star { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff; animation: twinkle 3s infinite ease-in-out; }
+  @keyframes twinkle { 0%, 100% { opacity: .2; } 50% { opacity: 1; } }
+  .curtain { position: absolute; top: -9px; width: clamp(12px, 4vw, 22px); height: clamp(90px, 26vw, 150px); background: linear-gradient(#5c6f9e, #41507c); border-radius: 4px 4px 10px 10px; box-shadow: 0 0 6px rgba(0,0,0,.25); }
+  .curtain.left { left: -20px; }
+  .curtain.right { right: -20px; }
+
+  .frame { right: 6%; top: 7%; width: min(84px, 16vw); height: min(104px, 20vw); border: clamp(4px, 1.4vw, 8px) solid #8a6d4d; border-radius: 4px; background: linear-gradient(180deg, #1b2447 0%, #1b2447 55%, #2c3557 55%, #3a2f52 100%); box-shadow: 0 3px 8px rgba(0,0,0,.35); }
+  .frame::before { content: ""; position: absolute; left: 50%; bottom: 18%; width: min(24px, 5vw); height: min(24px, 5vw); border-radius: 50%; background: #fff3b0; box-shadow: 0 0 10px #fff3b0; transform: translateX(-50%); }
+
+  .lamp { right: 12%; bottom: 30%; width: min(70px, 13vw); height: min(130px, 24vw); }
+  .lamp .pole { position: absolute; left: 50%; bottom: 0; width: clamp(5px, 1.6vw, 8px); height: min(90px, 16vw); background: #6b543c; transform: translateX(-50%); border-radius: 4px; }
+  .lamp .shade { position: absolute; left: 50%; top: 0; width: 0; height: 0; border-left: min(34px, 6.3vw) solid transparent; border-right: min(34px, 6.3vw) solid transparent; border-bottom: min(46px, 8.5vw) solid #ffd98a; transform: translateX(-50%); border-radius: 4px 4px 0 0; filter: drop-shadow(0 0 24px rgba(255, 205, 100, 1)) drop-shadow(0 0 8px rgba(255, 205, 100, .9)); }
+
+  .rug { left: 8%; bottom: 7%; width: min(240px, 40vw); height: min(130px, 21.5vw); border-radius: 50%; background: radial-gradient(#e89a52, #c97a35); opacity: .92; box-shadow: 0 4px 10px rgba(0,0,0,.25); }
+
+  .bed { right: 12%; bottom: 4%; width: min(280px, 46vw); height: min(150px, 24vw); }
+  .bed .head { position: absolute; left: 0; top: 0; width: 100%; height: min(46px, 7.5vw); background: linear-gradient(#7a4a6b, #5f3755); border-radius: 14px 14px 4px 4px; box-shadow: inset 0 -8px 14px rgba(0,0,0,.25); }
+  .bed .mat { position: absolute; left: 4px; bottom: 0; width: 100%; height: min(84px, 13.5vw); background: linear-gradient(#8a5dbb, #6f46a0); border-radius: 10px 10px 16px 16px; box-shadow: 0 6px 14px rgba(0,0,0,.3); }
+  .bed .pillow { position: absolute; left: clamp(8px, 2vw, 12px); bottom: min(28px, 5vw); width: min(84px, 14vw); height: min(40px, 6.5vw); background: #f3f0ff; border-radius: 14px; box-shadow: 0 2px 6px rgba(0,0,0,.3); transform: rotate(-6deg); }
+
+  .particles { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+  .particles span {
+    position: absolute; width: 5px; height: 5px; border-radius: 50%;
+    background: radial-gradient(circle, #ffe9a8 0%, rgba(255,233,168,0) 70%);
+    opacity: 0;
+    animation: drift 9s infinite ease-in-out;
+  }
+  @keyframes drift {
+    0% { transform: translate(0, 0); opacity: 0; }
+    15% { opacity: .55; }
+    85% { opacity: .35; }
+    100% { transform: translate(24px, -90px); opacity: 0; }
+  }
+
+  #mosquito {
+    position: absolute;
+    left: 0; top: 0;
+    width: 56px; height: 45px;
+    z-index: 10;
+    cursor: pointer;
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+  }
+  #mosquito svg.moz { width: 56px; height: 45px; display: block; filter: drop-shadow(0 4px 5px rgba(0,0,0,.3)); }
+  #mosquito.popped { transition: transform .12s ease-in; transform: translate3d(var(--x), var(--y), 0) scale(0) !important; }
+  .wing { transform-origin: 45px 22px; animation: flap .11s infinite alternate ease-in-out; }
+  .wing.right { animation-delay: -.05s; }
+  @keyframes flap {
+    from { transform: rotate(14deg) scaleY(.85); }
+    to { transform: rotate(-14deg) scaleY(1.15); }
+  }
+
+  #timer-ring { position: absolute; left: 50%; top: 50%; width: 66px; height: 66px; transform: translate(-50%, -50%); pointer-events: none; }
+  #timer-ring .track { fill: none; stroke: rgba(0,0,0,.15); stroke-width: 5; }
+  #timer-ring .bar { fill: none; stroke: #7fd150; stroke-width: 5; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; }
+
+  .miss-ring {
+    position: absolute; width: 34px; height: 34px;
+    border: 3px solid rgba(255, 150, 160, .8); border-radius: 50%;
+    transform: translate(-50%, -50%) scale(.3); opacity: 0;
+    pointer-events: none; z-index: 15;
+  }
+  .miss-ring.pop { animation: missRing .35s ease-out forwards; }
+  @keyframes missRing {
+    from { opacity: .9; transform: translate(-50%, -50%) scale(.3); }
+    to { opacity: 0; transform: translate(-50%, -50%) scale(1.4); }
+  }
+
+  #hud {
+    position: absolute; top: clamp(8px, 2vw, 12px); left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 clamp(10px, 2.5vw, 18px); z-index: 20; pointer-events: none;
+  }
+  .pill {
+    background: rgba(16, 22, 46, .55);
+    color: #f0ecff;
+    font-size: clamp(15px, 4.5vw, 22px); font-weight: 800;
+    padding: clamp(6px, 1.6vw, 8px) clamp(12px, 3.5vw, 18px); border-radius: 30px;
+    box-shadow: 0 3px 8px rgba(0,0,0,.3);
+    text-shadow: 0 2px 3px rgba(0,0,0,.35);
+  }
+  #lives { display: flex; gap: clamp(4px, 1vw, 6px); }
+  #lives svg { width: clamp(22px, 6vw, 28px); height: clamp(22px, 6vw, 28px); display: block; }
+  #lives.shake { animation: shake .3s; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+  .pause-btn {
+    pointer-events: auto;
+    font-family: inherit; font-size: clamp(16px, 4.5vw, 20px); font-weight: 800;
+    color: #f0ecff; cursor: pointer;
+    width: clamp(40px, 9vw, 46px); height: clamp(40px, 9vw, 46px); border: none; border-radius: 50%;
+    background: rgba(16, 22, 46, .55);
+    box-shadow: 0 3px 8px rgba(0,0,0,.3);
+    transition: transform .08s, background .08s;
+    line-height: 1;
+    touch-action: manipulation;
+  }
+  .pause-btn:hover { background: rgba(16, 22, 46, .78); }
+  .pause-btn:active { transform: scale(.9); }
+
+  .screen {
+    position: absolute; inset: 0; z-index: 30;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center;
+    transition: opacity .3s;
+  }
+  .screen.hidden { opacity: 0; pointer-events: none; }
+
+  #home {
+    background:
+      linear-gradient(rgba(8, 10, 22, .38), rgba(8, 10, 22, .38)),
+      url("front-bg.jpeg") center / cover no-repeat;
+  }
+  #home h1 {
+    font-size: clamp(28px, 8.5vw, 46px); font-weight: 800; letter-spacing: clamp(3px, 1.8vw, 7px);
+    color: #f6f1ff; text-transform: uppercase;
+    text-shadow: 0 0 18px rgba(170,190,255,.4), 0 3px 10px rgba(0,0,0,.45);
+  }
+  #home h1 span { color: #ffd9a0; text-shadow: 0 0 16px rgba(255,217,160,.55); }
+  #home .tag { color: #d5dcef; font-size: clamp(14px, 4.5vw, 19px); font-weight: 600; margin-top: clamp(8px, 2.5vw, 12px); letter-spacing: clamp(.5px, .4vw, 1px); text-shadow: 0 2px 6px rgba(0,0,0,.5); }
+  #home .deco { margin: clamp(16px, 4vw, 24px) 0 clamp(6px, 1.5vw, 10px); animation: fly 7s infinite ease-in-out; }
+  #home .deco svg { width: clamp(70px, 19vw, 92px); height: auto; filter: drop-shadow(0 6px 8px rgba(0,0,0,.4)); }
+  @keyframes fly {
+    0% { transform: translate(0, 0) rotate(-5deg); }
+    25% { transform: translate(30px, -16px) rotate(6deg); }
+    50% { transform: translate(2px, -30px) rotate(-6deg); }
+    75% { transform: translate(-30px, -12px) rotate(5deg); }
+    100% { transform: translate(0, 0) rotate(-5deg); }
+  }
+  #home .best { margin-top: clamp(20px, 6vw, 34px); color: rgba(212,220,240,.55); font-size: clamp(12px, 3.6vw, 15px); font-weight: 700; letter-spacing: 2px; }
+
+  #paused { background: rgba(12, 15, 32, .62); }
+  #paused h2 { font-size: clamp(30px, 9vw, 44px); font-weight: 800; color: #f6f1ff; letter-spacing: 6px; text-shadow: 0 3px 10px rgba(0,0,0,.45); }
+
+  .btn {
+    margin-top: 18px;
+    font-family: inherit; font-size: clamp(16px, 4.5vw, 21px); font-weight: 800; letter-spacing: clamp(2px, .8vw, 3px); text-transform: uppercase;
+    color: #fff; cursor: pointer;
+    padding: clamp(13px, 3.4vw, 16px) clamp(36px, 11vw, 64px); border: none; border-radius: 999px;
+    background: linear-gradient(#8fa2e0, #5f76c0);
+    box-shadow: 0 6px 0 #3a4c8a, 0 8px 22px rgba(0,0,0,.35);
+    transition: transform .08s, box-shadow .08s;
+    touch-action: manipulation;
+    max-width: 92vw;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #3a4c8a, 0 12px 26px rgba(0,0,0,.4), 0 0 22px rgba(150,180,255,.35); }
+  .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #3a4c8a; }
+  .btn.alt { background: rgba(255,255,255,.10); box-shadow: 0 4px 0 rgba(255,255,255,.08), inset 0 0 0 2px rgba(255,255,255,.35); }
+  .btn.alt:hover { background: rgba(255,255,255,.18); box-shadow: 0 6px 0 rgba(255,255,255,.10), inset 0 0 0 2px rgba(255,255,255,.5); }
+  .btn.alt:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(255,255,255,.08), inset 0 0 0 2px rgba(255,255,255,.5); }
+  #home .btn.pressed { animation: press .3s ease forwards; }
+  @keyframes press {
+    0% { transform: scale(1); }
+    35% { transform: scale(.9); }
+    70% { transform: scale(1.04); }
+    100% { transform: scale(1); box-shadow: 0 6px 0 #3a4c8a, 0 10px 26px rgba(0,0,0,.35), 0 0 34px rgba(170,195,255,.85); }
+  }
+</style>
+</head>
+<body>
+<div id="scene">
+
+  <div class="wall-deco window">
+    <div class="moon"></div>
+    <div class="star" style="left:18px; top:22px"></div>
+    <div class="star" style="left:72px; top:12px; width:2px; height:2px; animation-delay:.8s"></div>
+    <div class="star" style="left:122px; top:32px; animation-delay:1.6s"></div>
+    <div class="star" style="left:40px; top:72px; width:2px; height:2px; animation-delay:2.2s"></div>
+    <div class="star" style="left:100px; top:82px; width:2.5px; height:2.5px; animation-delay:.4s"></div>
+    <div class="star" style="left:138px; top:62px; width:2px; height:2px; animation-delay:1.2s"></div>
+    <div class="curtain left"></div>
+    <div class="curtain right"></div>
+  </div>
+  <div class="wall-deco frame"></div>
+  <div class="wall-deco lamp">
+    <div class="shade"></div>
+    <div class="pole"></div>
+  </div>
+  <div class="wall-deco rug"></div>
+  <div class="wall-deco bed">
+    <div class="head"></div>
+    <div class="mat"></div>
+    <div class="pillow"></div>
+  </div>
+
+  <div class="moonlight"></div>
+
+  <div class="particles">
+    <span style="left:14%; top:42%"></span>
+    <span style="left:26%; top:66%; width:3px; height:3px; animation-delay:1.2s"></span>
+    <span style="left:38%; top:24%; width:4px; height:4px; animation-delay:2.6s"></span>
+    <span style="left:52%; top:70%; width:3px; height:3px; animation-delay:.6s"></span>
+    <span style="left:63%; top:36%; animation-delay:3.8s"></span>
+    <span style="left:74%; top:60%; width:3px; height:3px; animation-delay:2.1s"></span>
+    <span style="left:84%; top:28%; width:4px; height:4px; animation-delay:4.4s"></span>
+    <span style="left:92%; top:48%; width:3px; height:3px; animation-delay:1.7s"></span>
+  </div>
+
+  <div id="mosquito">
+    <svg id="timer-ring" viewBox="0 0 108 108">
+      <circle class="track" cx="54" cy="54" r="49"></circle>
+      <circle class="bar" id="timer-bar" cx="54" cy="54" r="49"></circle>
+    </svg>
+    <svg class="moz" viewBox="0 0 96 78">
+      <ellipse class="wing" cx="28" cy="20" rx="26" ry="11" fill="rgba(200,220,255,.55)" stroke="#9db6d9" stroke-width="1.5"></ellipse>
+      <ellipse class="wing right" cx="68" cy="20" rx="26" ry="11" fill="rgba(200,220,255,.55)" stroke="#9db6d9" stroke-width="1.5"></ellipse>
+      <path d="M20 52 C10 56 4 62 2 70" stroke="#6b6b78" stroke-width="2.4" stroke-linecap="round" fill="none"></path>
+      <path d="M44 60 C44 68 43 73 43 78" stroke="#6b6b78" stroke-width="2.4" stroke-linecap="round" fill="none"></path>
+      <path d="M76 52 C86 56 92 62 94 70" stroke="#6b6b78" stroke-width="2.4" stroke-linecap="round" fill="none"></path>
+      <path d="M24 62 C20 70 18 74 17 78" stroke="#6b6b78" stroke-width="2.4" stroke-linecap="round" fill="none"></path>
+      <path d="M72 62 C76 70 78 74 79 78" stroke="#6b6b78" stroke-width="2.4" stroke-linecap="round" fill="none"></path>
+      <path d="M38 14 Q40 2 42 6" stroke="#5a5a66" stroke-width="2" stroke-linecap="round" fill="none"></path>
+      <path d="M54 14 Q56 2 58 6" stroke="#5a5a66" stroke-width="2" stroke-linecap="round" fill="none"></path>
+      <ellipse cx="46" cy="46" rx="18" ry="23" fill="#4a4a55"></ellipse>
+      <path d="M46 29 L46 63" stroke="#5f5f6c" stroke-width="7" opacity=".55"></path>
+      <path d="M46 63 L46 76" stroke="#4a4a55" stroke-width="3" stroke-linecap="round"></path>
+      <circle cx="46" cy="24" r="11" fill="#3c3c47"></circle>
+      <circle cx="41" cy="22" r="5" fill="#fff"></circle>
+      <circle cx="51" cy="22" r="5" fill="#fff"></circle>
+      <circle cx="42.5" cy="21.5" r="2.4" fill="#222"></circle>
+      <circle cx="49.5" cy="21.5" r="2.4" fill="#222"></circle>
+      <circle cx="44" cy="18" r="1.2" fill="#fff" opacity=".9"></circle>
+      <circle cx="51" cy="18" r="1.2" fill="#fff" opacity=".9"></circle>
+      <circle cx="35" cy="28" r="2.6" fill="#ff9db1" opacity=".8"></circle>
+      <circle cx="57" cy="28" r="2.6" fill="#ff9db1" opacity=".8"></circle>
+      <ellipse cx="42" cy="30" rx="4" ry="2.6" fill="#ff5a6e" opacity=".5" transform="rotate(-14 42 30)"></ellipse>
+      <ellipse cx="50" cy="30" rx="4" ry="2.6" fill="#ff5a6e" opacity=".5" transform="rotate(14 50 30)"></ellipse>
+    </svg>
+  </div>
+
+  <div id="hud">
+    <div class="pill" id="score">Score 0</div>
+    <button class="pause-btn" id="btn-pause" title="Pause">II</button>
+    <div id="lives"></div>
+  </div>
+
+  <div id="home" class="screen">
+    <h1>Mosquito <span>Hunter</span></h1>
+    <div class="tag">A little buzz. A little hunt.</div>
+    <div class="deco">
+      <svg viewBox="0 0 96 78">
+        <ellipse class="wing" cx="28" cy="20" rx="26" ry="11" fill="rgba(200,220,255,.7)" stroke="#9db6d9" stroke-width="1.5"></ellipse>
+        <ellipse class="wing" cx="68" cy="20" rx="26" ry="11" fill="rgba(200,220,255,.7)" stroke="#9db6d9" stroke-width="1.5" style="animation-delay:-.05s"></ellipse>
+        <path d="M20 52 C10 56 4 62 2 70" stroke="#6b6b78" stroke-width="2.4" stroke-linecap="round" fill="none"></path>
+        <path d="M44 60 C44 68 43 73 43 78" stroke="#6b6b78" stroke-width="2.4" stroke-linecap="round" fill="none"></path>
+        <path d="M76 52 C86 56 92 62 94 70" stroke="#6b6b78" stroke-width="2.4" stroke-linecap="round" fill="none"></path>
+        <path d="M24 62 C20 70 18 74 17 78" stroke="#6b6b78" stroke-width="2.4" stroke-linecap="round" fill="none"></path>
+        <path d="M72 62 C76 70 78 74 79 78" stroke="#6b6b78" stroke-width="2.4" stroke-linecap="round" fill="none"></path>
+        <path d="M38 14 Q40 2 42 6" stroke="#5a5a66" stroke-width="2" stroke-linecap="round" fill="none"></path>
+        <path d="M54 14 Q56 2 58 6" stroke="#5a5a66" stroke-width="2" stroke-linecap="round" fill="none"></path>
+        <ellipse cx="46" cy="46" rx="18" ry="23" fill="#4a4a55"></ellipse>
+        <path d="M46 29 L46 63" stroke="#5f5f6c" stroke-width="7" opacity=".55"></path>
+        <path d="M46 63 L46 76" stroke="#4a4a55" stroke-width="3" stroke-linecap="round"></path>
+        <circle cx="46" cy="24" r="11" fill="#3c3c47"></circle>
+        <circle cx="41" cy="22" r="5" fill="#fff"></circle>
+        <circle cx="51" cy="22" r="5" fill="#fff"></circle>
+        <circle cx="42.5" cy="21.5" r="2.4" fill="#222"></circle>
+        <circle cx="49.5" cy="21.5" r="2.4" fill="#222"></circle>
+        <circle cx="44" cy="18" r="1.2" fill="#fff" opacity=".9"></circle>
+        <circle cx="51" cy="18" r="1.2" fill="#fff" opacity=".9"></circle>
+        <circle cx="35" cy="28" r="2.6" fill="#ff9db1" opacity=".8"></circle>
+        <circle cx="57" cy="28" r="2.6" fill="#ff9db1" opacity=".8"></circle>
+        <ellipse cx="42" cy="30" rx="4" ry="2.6" fill="#ff5a6e" opacity=".5" transform="rotate(-14 42 30)"></ellipse>
+        <ellipse cx="50" cy="30" rx="4" ry="2.6" fill="#ff5a6e" opacity=".5" transform="rotate(14 50 30)"></ellipse>
+      </svg>
+    </div>
+    <button class="btn" id="btn-play">Play</button>
+    <div class="best" id="home-best">Best 0</div>
+  </div>
+
+  <div id="paused" class="screen hidden">
+    <h2>Paused</h2>
+    <button class="btn" id="btn-resume">Resume</button>
+    <button class="btn alt" id="btn-home">Home</button>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var scene = document.getElementById("scene");
+  var mosquito = document.getElementById("mosquito");
+  var scoreEl = document.getElementById("score");
+  var livesEl = document.getElementById("lives");
+  var timerBar = document.getElementById("timer-bar");
+  var homeScreen = document.getElementById("home");
+  var pausedScreen = document.getElementById("paused");
+  var pauseBtn = document.getElementById("btn-pause");
+  var homeBestEl = document.getElementById("home-best");
+
+  var LIFETIME_MS = 6000;
+  var BASE_SPEED = 165;
+  var SPEED_PER_SCORE = 15;
+  var MAX_SPEED = 470;
+  var START_LIVES = 3;
+
+  var state = "home";
+  var paused = false;
+  var score = 0;
+  var lives = START_LIVES;
+  var speed = BASE_SPEED;
+  var best = parseInt(localStorage.getItem("mosquitoHunterBest") || "0", 10) || 0;
+
+  var x = 0, y = 0, vx = 0, vy = 0, dirX = 1, dirY = 0, dirTimer = 0;
+  var lifeLeft = LIFETIME_MS;
+  var popping = false;
+  var last = 0;
+
+  var CIRC = 2 * Math.PI * 49;
+
+  var actx = null, buzzOsc = null, buzzGain = null, buzzLfo = null;
+
+  function ensureAudio() {
+    if (!actx) {
+      actx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (actx.state === "suspended") actx.resume();
+  }
+
+  function playHit() {
+    ensureAudio();
+    var t = actx.currentTime;
+    var osc = actx.createOscillator();
+    var g = actx.createGain();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(720, t);
+    osc.frequency.exponentialRampToValueAtTime(160, t + 0.14);
+    g.gain.setValueAtTime(0.28, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+    osc.connect(g).connect(actx.destination);
+    osc.start(t);
+    osc.stop(t + 0.18);
+  }
+
+  function playLifeLost() {
+    ensureAudio();
+    var t = actx.currentTime;
+    var osc = actx.createOscillator();
+    var g = actx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(340, t);
+    osc.frequency.exponentialRampToValueAtTime(110, t + 0.4);
+    g.gain.setValueAtTime(0.22, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+    osc.connect(g).connect(actx.destination);
+    osc.start(t);
+    osc.stop(t + 0.5);
+  }
+
+  function playBuzz() {
+    ensureAudio();
+    if (buzzOsc) return;
+    buzzOsc = actx.createOscillator();
+    buzzGain = actx.createGain();
+    var filter = actx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 900;
+    buzzOsc.type = "square";
+    buzzOsc.frequency.value = 340;
+    buzzLfo = actx.createOscillator();
+    var lfoGain = actx.createGain();
+    lfoGain.gain.value = 55;
+    buzzLfo.frequency.value = 31;
+    buzzLfo.connect(lfoGain).connect(buzzOsc.frequency);
+    buzzGain.gain.value = 0.0001;
+    buzzOsc.connect(filter).connect(buzzGain).connect(actx.destination);
+    buzzOsc.start();
+    buzzLfo.start();
+    buzzGain.gain.exponentialRampToValueAtTime(0.05, actx.currentTime + 0.3);
+  }
+
+  function stopBuzz() {
+    if (!buzzOsc) return;
+    var g = buzzGain, o = buzzOsc, l = buzzLfo;
+    buzzOsc = buzzGain = buzzLfo = null;
+    try {
+      g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + 0.25);
+      o.stop(actx.currentTime + 0.3);
+      l.stop(actx.currentTime + 0.3);
+    } catch (e) {}
+  }
+
+  function heart(filled) {
+    var fill = filled ? "#ff5a6e" : "#dcd3c4";
+    var stroke = filled ? "#d63b52" : "#b5ab99";
+    return '<svg viewBox="0 0 32 32"><path d="M16 27C7 20 3 14 3 9.5A6.5 6.5 0 0 1 16 6a6.5 6.5 0 0 1 13 3.5C29 14 25 20 16 27z" fill="' + fill + '" stroke="' + stroke + '" stroke-width="2"/></svg>';
+  }
+
+  function renderLives() {
+    var out = "";
+    for (var i = 0; i < START_LIVES; i++) out += heart(i < lives);
+    livesEl.innerHTML = out;
+  }
+
+  function renderScore() {
+    scoreEl.textContent = "Score " + score;
+  }
+
+  function currentSpeed() {
+    return Math.min(BASE_SPEED + score * SPEED_PER_SCORE, MAX_SPEED);
+  }
+
+  function bounds() {
+    return {
+      w: scene.clientWidth,
+      h: scene.clientHeight,
+      mx: 60,
+      my: 70
+    };
+  }
+
+  function pickDirection() {
+    var a = Math.random() * Math.PI * 2;
+    dirX = Math.cos(a);
+    dirY = Math.sin(a);
+    dirTimer = 0.35 + Math.random() * 0.45;
+  }
+
+  function spawnMosquito() {
+    var b = bounds();
+    x = b.mx + Math.random() * (b.w - b.mx * 2);
+    y = b.my + Math.random() * (b.h - b.my * 2);
+    pickDirection();
+    lifeLeft = LIFETIME_MS;
+    popping = false;
+    mosquito.style.transition = "none";
+    mosquito.style.transform = "translate3d(" + x + "px, " + y + "px, 0) rotate(0deg)";
+    place();
+  }
+
+  function place() {
+    mosquito.style.transform = "translate3d(" + x + "px, " + y + "px, 0) rotate(" + (vx * 0.05) + "deg)";
+  }
+
+  function update(dt) {
+    dirTimer -= dt;
+    if (dirTimer <= 0) pickDirection();
+
+    var b = bounds();
+    var bx = 0, by = 0;
+    if (x < b.mx) bx = (b.mx - x) / b.mx;
+    if (x > b.w - b.mx) bx = -(x - (b.w - b.mx)) / b.mx;
+    if (y < b.my) by = (b.my - y) / b.my;
+    if (y > b.h - b.my) by = -(y - (b.h - b.my)) / b.my;
+
+    var tx = dirX + bx * 3;
+    var ty = dirY + by * 3;
+    var tl = Math.hypot(tx, ty) || 1;
+    var s = currentSpeed();
+    var k = Math.min(1, dt * 4);
+    vx += ((tx / tl) * s - vx) * k;
+    vy += ((ty / tl) * s - vy) * k;
+
+    x += vx * dt;
+    y += vy * dt;
+    place();
+
+    lifeLeft -= dt;
+    var frac = Math.max(0, lifeLeft / LIFETIME_MS);
+    timerBar.style.strokeDasharray = CIRC;
+    timerBar.style.strokeDashoffset = CIRC * (1 - frac);
+    timerBar.style.stroke = "hsl(" + Math.round(frac * 120) + ", 90%, 50%)";
+
+    if (lifeLeft <= 0) {
+      if (spendLife()) spawnMosquito();
+    }
+  }
+
+  function hit() {
+    if (state !== "playing" || paused || popping) return;
+    popping = true;
+    score++;
+    renderScore();
+    playHit();
+    mosquito.style.transition = "transform .12s ease-in";
+    var sx = x, sy = y;
+    mosquito.style.setProperty("--x", sx + "px");
+    mosquito.style.setProperty("--y", sy + "px");
+    mosquito.style.transform = "translate3d(" + sx + "px, " + sy + "px, 0) scale(0)";
+    setTimeout(spawnMosquito, 130);
+  }
+
+  function spendLife() {
+    if (state !== "playing") return false;
+    lives--;
+    renderLives();
+    playLifeLost();
+    livesEl.classList.remove("shake");
+    void livesEl.offsetWidth;
+    livesEl.classList.add("shake");
+    if (lives <= 0) {
+      endGame();
+      return false;
+    }
+    return true;
+  }
+
+  function pauseGame() {
+    if (state !== "playing" || paused) return;
+    paused = true;
+    stopBuzz();
+    pausedScreen.classList.remove("hidden");
+    pauseBtn.textContent = ">";
+    pauseBtn.title = "Resume";
+  }
+
+  function resumeGame() {
+    if (state !== "playing" || !paused) return;
+    paused = false;
+    playBuzz();
+    pausedScreen.classList.add("hidden");
+    pauseBtn.textContent = "II";
+    pauseBtn.title = "Pause";
+  }
+
+  function togglePause() {
+    if (paused) resumeGame();
+    else pauseGame();
+  }
+
+  function endGame() {
+    state = "home";
+    paused = false;
+    stopBuzz();
+    pausedScreen.classList.add("hidden");
+    pauseBtn.style.display = "none";
+    pauseBtn.textContent = "II";
+    pauseBtn.title = "Pause";
+    mosquito.style.visibility = "hidden";
+    if (score > best) {
+      best = score;
+      localStorage.setItem("mosquitoHunterBest", String(best));
+    }
+    homeBestEl.textContent = "Best " + best;
+    homeScreen.classList.remove("hidden");
+  }
+
+  function goHome() {
+    state = "home";
+    paused = false;
+    stopBuzz();
+    pausedScreen.classList.add("hidden");
+    pauseBtn.style.display = "none";
+    pauseBtn.textContent = "II";
+    pauseBtn.title = "Pause";
+    mosquito.style.visibility = "hidden";
+    homeBestEl.textContent = "Best " + best;
+    homeScreen.classList.remove("hidden");
+  }
+
+  function startGame() {
+    ensureAudio();
+    playBuzz();
+    score = 0;
+    lives = START_LIVES;
+    paused = false;
+    renderScore();
+    renderLives();
+    pauseBtn.style.display = "";
+    pauseBtn.textContent = "II";
+    pauseBtn.title = "Pause";
+    pausedScreen.classList.add("hidden");
+    homeScreen.classList.add("hidden");
+    mosquito.style.visibility = "visible";
+    state = "playing";
+    spawnMosquito();
+  }
+
+  function loop(t) {
+    var dt = Math.min(0.05, (t - last) / 1000) || 0;
+    last = t;
+    if (state === "playing" && !paused) update(dt);
+    requestAnimationFrame(loop);
+  }
+
+  var missRing = document.createElement("div");
+  missRing.className = "miss-ring";
+  scene.appendChild(missRing);
+
+  function showMissRing(e) {
+    var r = scene.getBoundingClientRect();
+    missRing.style.left = (e.clientX - r.left) + "px";
+    missRing.style.top = (e.clientY - r.top) + "px";
+    missRing.classList.remove("pop");
+    void missRing.offsetWidth;
+    missRing.classList.add("pop");
+  }
+
+  function onSceneTap(e) {
+    if (state !== "playing" || paused || popping) return;
+    if (e.target && e.target.closest && e.target.closest("#hud")) return;
+    showMissRing(e);
+    spendLife();
+  }
+
+  mosquito.addEventListener("pointerdown", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    hit();
+  });
+
+  scene.addEventListener("pointerdown", onSceneTap);
+
+  var playBtn = document.getElementById("btn-play");
+  playBtn.addEventListener("pointerdown", function () {
+    ensureAudio();
+    playBtn.classList.remove("pressed");
+    void playBtn.offsetWidth;
+    playBtn.classList.add("pressed");
+    setTimeout(startGame, 320);
+  });
+
+  document.getElementById("btn-resume").addEventListener("click", resumeGame);
+  document.getElementById("btn-home").addEventListener("click", goHome);
+  pauseBtn.addEventListener("click", togglePause);
+
+  window.addEventListener("resize", function () {
+    var b = bounds();
+    x = Math.max(b.mx, Math.min(x, b.w - b.mx));
+    y = Math.max(b.my, Math.min(y, b.h - b.my));
+    place();
+  });
+
+  renderLives();
+  renderScore();
+  homeBestEl.textContent = "Best " + best;
+  pauseBtn.style.display = "none";
+  mosquito.style.visibility = "hidden";
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
