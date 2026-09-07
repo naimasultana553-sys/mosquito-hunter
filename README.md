@@ -1,3 +1,5 @@
+﻿> Built by [Naima Sultana](https://github.com/naimasultana553-sys) | CSE Student, Bangladesh | [LinkedIn](https://www.linkedin.com/in/naima-sultana-76a678395)
+
 # 🦟 Mosquito Hunter
 
 **Mosquito Hunter** is a simple 2D casual game built around one funny and satisfying idea: **a mosquito is flying around your room, and your job is to catch it before it escapes.**
@@ -66,3 +68,4 @@ This project is hosted on [Vercel](https://vercel.com) as a static site. Deployi
 ```bash
 vercel --prod
 ```
+
